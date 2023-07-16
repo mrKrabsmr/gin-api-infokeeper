@@ -1,0 +1,227 @@
+definitions:
+  dto.CreateInfoDTO:
+    properties:
+      key:
+        type: string
+      read_only:
+        type: boolean
+      value:
+        type: string
+    required:
+    - key
+    - value
+    type: object
+  dto.DeleteInfoDTO:
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+    required:
+    - id
+    - key
+    type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: boolean
+      result: {}
+    type: object
+  dto.Response:
+    properties:
+      error:
+        type: boolean
+      result: {}
+    type: object
+  dto.UpdateInfoDTO:
+    properties:
+      id:
+        type: string
+      key:
+        type: string
+      read_only:
+        type: boolean
+      value:
+        type: string
+    required:
+    - id
+    - key
+    - value
+    type: object
+host: localhost:5050
+info:
+  contact:
+    name: Info-Keeper API Support
+  description: You can keep even the most intimate secrets
+  title: Info-Keeper
+  version: "1.0"
+paths:
+  /api/v1/info-keeper:
+    delete:
+      consumes:
+      - application/json
+      description: delete info by key and unique id
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteInfoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      tags:
+      - info-keeper
+    get:
+      consumes:
+      - application/json
+      description: get info by key and unique id
+      parameters:
+      - in: query
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      tags:
+      - info-keeper
+    patch:
+      consumes:
+      - application/json
+      description: send the request body with the mandatory content of id and key
+        (they are immutable) and the modified/unchanged value and read-only
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateInfoDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      tags:
+      - info-keeper
+    post:
+      consumes:
+      - application/json
+      description: send the key and the information you want to save and be sure to
+        save the resulting id along with the key
+      parameters:
+      - description: info
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateInfoDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      tags:
+      - info-keeper
+  /api/v1/info-keeper/count:
+    get:
+      consumes:
+      - application/json
+      description: send a request and get the amount of information registered on
+        your ip address
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      tags:
+      - info-keeper
+swagger: "2.0"
