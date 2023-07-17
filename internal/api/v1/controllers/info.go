@@ -7,16 +7,20 @@ import (
 	"net/http"
 )
 
+type InfoController struct {
+	Service *services.InfoService
+}
+
 // Get @Summary
 // @Description get info by key and unique id
 // @Tags info-keeper
 // @Accept json
 // @Produce json
-// @Param input query dto.GetInfoDTO true "info"
+// @Param input query dto.NewInfoDTO true "info"
 // @Success 200 {object} dto.Response
 // @Failure 400,404,422,500 {object} dto.ErrorResponse
 // @Router /api/v1/info-keeper [get]
-func Get(c *gin.Context) {
+func (r *InfoController) Get(c *gin.Context) {
 	var dtoInfo dto.GetInfoDTO
 
 	if err := c.ShouldBindQuery(&dtoInfo); err != nil {
@@ -34,16 +38,7 @@ func Get(c *gin.Context) {
 		})
 	}
 
-	service, err := services.NewInfoService()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": "server error",
-		})
-		return
-	}
-
-	value, err := service.GetValue(&dtoInfo)
+	value, err := r.Service.GetValue(&dtoInfo)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   true,
@@ -67,7 +62,7 @@ func Get(c *gin.Context) {
 // @Success 201 {object} dto.Response
 // @Failure 400,422,500 {object} dto.ErrorResponse
 // @Router /api/v1/info-keeper [post]
-func Post(c *gin.Context) {
+func (r *InfoController) Post(c *gin.Context) {
 	var dtoInfo *dto.CreateInfoDTO
 
 	if err := c.ShouldBindJSON(&dtoInfo); err != nil {
@@ -86,18 +81,9 @@ func Post(c *gin.Context) {
 		return
 	}
 
-	service, err := services.NewInfoService()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": err.Error(),
-		})
-		return
-	}
-
 	ip := c.ClientIP()
 
-	id, err := service.Save(dtoInfo, ip)
+	id, err := r.Service.Save(dtoInfo, ip)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   true,
@@ -121,7 +107,7 @@ func Post(c *gin.Context) {
 // @Success 200 {object} dto.Response
 // @Failure 400,404,422,500 {object} dto.ErrorResponse
 // @Router /api/v1/info-keeper [patch]
-func Patch(c *gin.Context) {
+func (r *InfoController) Patch(c *gin.Context) {
 	var dtoInfo *dto.UpdateInfoDTO
 
 	if err := c.ShouldBindJSON(&dtoInfo); err != nil {
@@ -140,18 +126,9 @@ func Patch(c *gin.Context) {
 		return
 	}
 
-	service, err := services.NewInfoService()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": "server error",
-		})
-		return
-	}
-
 	ip := c.ClientIP()
 
-	if err := service.PartialUpdate(dtoInfo, ip); err != nil {
+	if err := r.Service.PartialUpdate(dtoInfo, ip); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   true,
 			"message": err.Error(),
@@ -174,7 +151,7 @@ func Patch(c *gin.Context) {
 // @Success 200 {object} dto.Response
 // @Failure 400,404,422,500 {object} dto.ErrorResponse
 // @Router /api/v1/info-keeper [delete]
-func Delete(c *gin.Context) {
+func (r *InfoController) Delete(c *gin.Context) {
 	var dtoInfo *dto.DeleteInfoDTO
 
 	if err := c.ShouldBindJSON(&dtoInfo); err != nil {
@@ -193,16 +170,7 @@ func Delete(c *gin.Context) {
 		return
 	}
 
-	service, err := services.NewInfoService()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": "server error",
-		})
-		return
-	}
-
-	if err := service.Delete(dtoInfo); err != nil {
+	if err := r.Service.Delete(dtoInfo); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"error":   true,
 			"message": err.Error(),
@@ -224,19 +192,10 @@ func Delete(c *gin.Context) {
 // @Success 200 {object} dto.Response
 // @Failure 400,500 {object} dto.ErrorResponse
 // @Router /api/v1/info-keeper/count [get]
-func GetCount(c *gin.Context) {
-	service, err := services.NewInfoService()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   true,
-			"message": "server error",
-		})
-		return
-	}
-
+func (r *InfoController) GetCount(c *gin.Context) {
 	ip := c.ClientIP()
 
-	count, err := service.GetCountInfo(ip)
+	count, err := r.Service.GetCountInfo(ip)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   true,

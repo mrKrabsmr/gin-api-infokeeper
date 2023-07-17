@@ -5,9 +5,12 @@ import (
 	"github.com/joho/godotenv"
 	_ "github.com/mrKrabsmr/infokeeper/docs"
 	"github.com/mrKrabsmr/infokeeper/internal/api/v1/routes"
+	config "github.com/mrKrabsmr/infokeeper/internal/config"
+	"github.com/mrKrabsmr/infokeeper/pkg/db_connection"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 // @title Info-Keeper
@@ -21,7 +24,21 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
+	maxConn, _ := strconv.Atoi(os.Getenv("DB_MAX_CONNECTIONS"))
+	maxIdleConn, _ := strconv.Atoi(os.Getenv("DB_MAX_IDLE_CONNECTIONS"))
+	maxLifetimeConn, _ := strconv.Atoi(os.Getenv("DB_MAX_LIFETIME_CONNECTIONS"))
+
+	config := &config.Config{
+		Server:          os.Getenv("SERVER_URL"),
+		Database:        os.Getenv("DB_SERVER_URL"),
+		MaxConn:         maxConn,
+		MaxIdleConn:     maxIdleConn,
+		MaxLifetimeConn: maxLifetimeConn,
+	}
+
 	route := gin.Default()
+
+	conn := db_connection.NewPGConnection(config)
 
 	route.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -31,10 +48,10 @@ func main() {
 
 	v1 := route.Group("api/v1/info-keeper")
 	{
-		routes.InfoRoutes(*v1)
+		routes.InfoRoutes(*v1, conn)
 	}
 
 	routes.SwaggerRoutes(*route)
 
-	route.Run(os.Getenv("SERVER_URL"))
+	route.Run(config.Server)
 }

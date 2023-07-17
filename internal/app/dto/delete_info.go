@@ -1,7 +1,6 @@
 package dto
 
 import (
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -11,6 +10,6 @@ type DeleteInfoDTO struct {
 }
 
 func (dto *DeleteInfoDTO) Validate() error {
-	v := validator.New()
+	v := GetValidator()
 	return v.Struct(dto)
 }

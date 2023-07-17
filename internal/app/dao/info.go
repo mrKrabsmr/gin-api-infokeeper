@@ -4,19 +4,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mrKrabsmr/infokeeper/internal/app/models"
-	"github.com/mrKrabsmr/infokeeper/pkg/db_connection"
 )
 
 type InfoDAO struct {
 	*sqlx.DB
 }
 
-func NewInfoDAO() (*InfoDAO, error) {
-	db, err := db_connection.PostgreSQLConnection()
-	if err != nil {
-		return nil, err
-	}
-	return &InfoDAO{db}, nil
+func NewInfoDAO(db *sqlx.DB) *InfoDAO {
+	return &InfoDAO{db}
 }
 
 func (dao *InfoDAO) GetObjByID(id uuid.UUID) (models.Info, error) {
@@ -69,7 +64,7 @@ func (dao *InfoDAO) GetCountValuesByIPAddress(ip string) (int, error) {
 	return count, nil
 }
 
-func (dao *InfoDAO) Create(info models.Info) (uuid.UUID, error) {
+func (dao *InfoDAO) Create(info *models.Info) (uuid.UUID, error) {
 	var infoID uuid.UUID
 
 	query := `INSERT INTO info(id, key, value, client_id, read_only) VALUES ($1, $2, $3, $4, $5) RETURNING id`
@@ -83,7 +78,7 @@ func (dao *InfoDAO) Create(info models.Info) (uuid.UUID, error) {
 	return infoID, nil
 }
 
-func (dao *InfoDAO) Update(info models.Info) error {
+func (dao *InfoDAO) Update(info *models.Info) error {
 	query := `UPDATE info SET value = $1, read_only = $2 WHERE id = $3`
 
 	if _, err := dao.Exec(query, info.Value, info.ReadOnly, info.ID); err != nil {

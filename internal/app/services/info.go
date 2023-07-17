@@ -18,15 +18,14 @@ import (
 )
 
 type InfoService struct {
-	DAO *dao.InfoDAO
+	DAO           *dao.InfoDAO
+	ClientService *ClientService
 }
 
-func NewInfoService() (*InfoService, error) {
-	dao, err := dao.NewInfoDAO()
-	if err != nil {
-		return nil, err
-	}
-	return &InfoService{DAO: dao}, nil
+func NewInfoService(infoDAO *dao.InfoDAO, clientDAO *dao.ClientDAO) *InfoService {
+	clientService := NewClientService(clientDAO)
+
+	return &InfoService{DAO: infoDAO, ClientService: clientService}
 }
 
 func (s *InfoService) GetCountInfo(ip string) (int, error) {
@@ -65,12 +64,7 @@ func (s *InfoService) Save(info *dto.CreateInfoDTO, ip string) (uuid.UUID, error
 		return uuid.UUID{}, err
 	}
 
-	clientService, err := NewClientService()
-	if err != nil {
-		return uuid.UUID{}, err
-	}
-
-	cId, err := clientService.Save(ip)
+	cId, err := s.ClientService.Save(ip)
 	if err != nil {
 		return uuid.UUID{}, err
 	}
@@ -83,7 +77,7 @@ func (s *InfoService) Save(info *dto.CreateInfoDTO, ip string) (uuid.UUID, error
 		ReadOnly: info.ReadOnly,
 	}
 
-	infoID, err := s.DAO.Create(*infoObj)
+	infoID, err := s.DAO.Create(infoObj)
 	if err != nil {
 		return uuid.UUID{}, err
 	}
@@ -120,7 +114,7 @@ func (s *InfoService) PartialUpdate(info *dto.UpdateInfoDTO, ip string) error {
 		ReadOnly: info.ReadOnly,
 	}
 
-	if err := s.DAO.Update(*updInfo); err != nil {
+	if err := s.DAO.Update(updInfo); err != nil {
 		return err
 	}
 

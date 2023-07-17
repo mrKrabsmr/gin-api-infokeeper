@@ -4,22 +4,17 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mrKrabsmr/infokeeper/internal/app/models"
-	"github.com/mrKrabsmr/infokeeper/pkg/db_connection"
 )
 
 type ClientDAO struct {
 	*sqlx.DB
 }
 
-func NewClientDAO() (*ClientDAO, error) {
-	db, err := db_connection.PostgreSQLConnection()
-	if err != nil {
-		return nil, err
-	}
-	return &ClientDAO{db}, nil
+func NewClientDAO(db *sqlx.DB) *ClientDAO {
+	return &ClientDAO{db}
 }
 
-func (dao *ClientDAO) Create(client models.Client) (uuid.UUID, error) {
+func (dao *ClientDAO) Create(client *models.Client) (uuid.UUID, error) {
 	exists, err := dao.CheckExists(client.IPAddress)
 
 	if err != nil {

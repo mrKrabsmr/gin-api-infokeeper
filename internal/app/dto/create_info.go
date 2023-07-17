@@ -1,9 +1,5 @@
 package dto
 
-import (
-	"github.com/go-playground/validator/v10"
-)
-
 type CreateInfoDTO struct {
 	Key      string `json:"key" binding:"required" validate:"required"`
 	Value    string `json:"value" binding:"required" validate:"required"`
@@ -11,6 +7,6 @@ type CreateInfoDTO struct {
 }
 
 func (dto *CreateInfoDTO) Validate() error {
-	v := validator.New()
+	v := GetValidator()
 	return v.Struct(dto)
 }
